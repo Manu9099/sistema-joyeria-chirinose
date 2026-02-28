@@ -1,0 +1,12 @@
+# Variables de entorno - NUNCA subir al repositorio
+.env
+
+# Docker
+docker-compose.override.yml
+
+# IDE
+.idea/
+*.iml
+
+# Logs
+*.log
