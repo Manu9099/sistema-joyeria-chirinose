@@ -1,0 +1,46 @@
+databases:
+  - name: joyeria-db
+    databaseName: joyeria_chirinose
+    user: joyeria_user
+    plan: free
+
+services:
+  # Backend - Spring Boot
+  - type: web
+    name: joyeria-backend
+    runtime: java
+    plan: free
+    buildCommand: ./mvnw clean package -DskipTests
+    startCommand: java -jar target/*.jar
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: joyeria-db
+          property: connectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: joyeria-db
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: joyeria-db
+          property: password
+      - key: SPRING_JPA_HIBERNATE_DDL_AUTO
+        value: update
+      - key: SERVER_PORT
+        value: 8080
+
+  # Frontend - Estático
+  - type: web
+    name: joyeria-frontend
+    runtime: static
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist   # Cámbialo a ./build si usas React CRA
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: https://joyeria-backend.onrender.com  # Se actualiza con tu URL real
