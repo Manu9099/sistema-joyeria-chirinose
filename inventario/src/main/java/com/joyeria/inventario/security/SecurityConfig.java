@@ -67,16 +67,18 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(request -> {
-                    CorsConfiguration config = new CorsConfiguration();
-                    config.addAllowedOriginPattern("http://localhost:*");
-                    config.addAllowedOriginPattern("http://127.0.0.1:*");
-                    config.addAllowedOriginPattern("https://localhost:*");
-                    config.addAllowedOriginPattern("https://127.0.0.1:*");
-                    config.addAllowedMethod("*");
-                    config.addAllowedHeader("*");
-                    config.setAllowCredentials(true);
-                    return config;
+
+              .cors(cors -> cors.configurationSource(request -> {
+                        CorsConfiguration config = new CorsConfiguration();
+                        config.addAllowedOriginPattern("http://localhost:*");
+                        config.addAllowedOriginPattern("http://127.0.0.1:*");
+                        config.addAllowedOriginPattern("https://localhost:*");
+                        config.addAllowedOriginPattern("https://127.0.0.1:*");
+                        config.addAllowedOriginPattern("https://*.onrender.com"); // <- agrega esto
+                        config.addAllowedMethod("*");
+                        config.addAllowedHeader("*");
+                        config.setAllowCredentials(true);
+                        return config;
                 }))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
