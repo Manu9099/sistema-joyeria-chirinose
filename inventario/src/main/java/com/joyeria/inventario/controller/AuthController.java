@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 public class AuthController {
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
     @Autowired
@@ -40,14 +40,19 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.get("email"),
-                        request.get("password")
-                )
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.get("email"),
+                            request.get("password")
+                    )
+            );
+        } catch (Exception ex) {
+            return ResponseEntity.status(401).body(Map.of("error", "Credenciales inválidas"));
+        }
 
-        );
-        log.info("Login exitoso para: {}",request.get("email"));
+        log.info("Login exitoso para: {}", request.get("email"));
+
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.get("email"));
         Usuario usuario = usuarioRepository.findByEmail(request.get("email")).orElseThrow();
 

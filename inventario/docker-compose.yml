@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: joyeria-db
+    environment:
+      POSTGRES_DB: joyeria
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  api:
+    build: .
+    container_name: joyeria-api
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/joyeria
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      # Carpeta dentro del contenedor donde se guardarán las fotos
+      APP_UPLOAD_BASE_DIR: /data/uploads
+    ports:
+      - "8080:8080"
+    volumes:
+      - uploads:/data/uploads
+
+volumes:
+  db-data:
+  uploads:

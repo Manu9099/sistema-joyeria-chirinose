@@ -2,9 +2,14 @@ package com.joyeria.inventario.controller;
 
 import com.joyeria.inventario.entity.Producto;
 import com.joyeria.inventario.service.ProductoService;
+import com.joyeria.inventario.storage.ProductoFotoStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Map;
 import java.util.List;
 
 @RestController
@@ -14,6 +19,9 @@ public class ProductoController {
 
     @Autowired
     private ProductoService productoService;
+
+    @Autowired
+    private ProductoFotoStorageService productoFotoStorageService;
 
     @GetMapping
     public List<Producto> listarTodos() {
@@ -47,6 +55,27 @@ public class ProductoController {
     @PutMapping("/{id}")
     public ResponseEntity<Producto> actualizar(@PathVariable String id, @RequestBody Producto producto) {
         return ResponseEntity.ok(productoService.actualizar(id, producto));
+    }
+
+    /**
+     * Sube/actualiza la foto del producto.
+     *
+     * Request: multipart/form-data con campo "file".
+     * Respuesta: { "fotoUrl": "/uploads/productos/..." }
+     */
+    @PostMapping(value = "/{id}/foto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Map<String, String>> subirFoto(
+            @PathVariable String id,
+            @RequestParam("file") MultipartFile file
+    ) {
+        String fotoUrl = productoFotoStorageService.guardarFoto(id, file);
+        return ResponseEntity.ok(Map.of("fotoUrl", fotoUrl));
+    }
+
+    @DeleteMapping("/{id}/foto")
+    public ResponseEntity<Void> eliminarFoto(@PathVariable String id) {
+        productoFotoStorageService.eliminarFoto(id);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
