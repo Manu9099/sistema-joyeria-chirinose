@@ -1,0 +1,61 @@
+<div class="login-container">
+  <div class="login-box">
+
+    <div class="login-header">
+      <div class="logo">✦</div>
+      <h1>JOYERÍA</h1>
+      <p>Sistema de Inventario</p>
+    </div>
+
+    <div class="login-form">
+      <div class="field">
+        <label>Correo electrónico</label>
+        <input
+          pInputText
+          type="email"
+          [(ngModel)]="email"
+          placeholder="admin@joyeria.com"
+          class="w-full"
+        />
+      </div>
+
+      <div class="field">
+        <label>Contraseña</label>
+        <p-password
+          [(ngModel)]="password"
+          placeholder="••••••••"
+          [feedback]="false"
+          [toggleMask]="true"
+          styleClass="w-full"
+        />
+      </div>
+
+<div class="remember-me">
+  <p-checkbox
+    [(ngModel)]="recordarme"
+    [binary]="true"
+    inputId="recordarme">
+  </p-checkbox>
+  <label for="recordarme">Recordarme por 7 días</label>
+</div>
+
+      <div class="error-msg" *ngIf="error">
+        {{ error }}
+      </div>
+
+      <button
+        pButton
+        label="Iniciar Sesión"
+        icon="pi pi-sign-in"
+        [loading]="loading"
+        (click)="login()"
+        class="w-full login-btn"
+      ></button>
+    </div>
+
+    <div class="login-footer">
+      <p>✦ Sistema de Gestión de Joyería ✦</p>
+    </div>
+
+  </div>
+</div>

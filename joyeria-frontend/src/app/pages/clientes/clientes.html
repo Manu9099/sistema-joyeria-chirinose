@@ -1,0 +1,100 @@
+
+<div class="clientes">
+  <p-toast></p-toast>
+
+  <div class="page-header">
+    <div>
+      <h1>Clientes</h1>
+      <p>Gestión de clientes de la joyería</p>
+    </div>
+    <button pButton label="Nuevo Cliente" icon="pi pi-plus" class="btn-dorado" (click)="abrirDialogNuevo()"></button>
+  </div>
+
+  <div class="search-bar">
+    <i class="pi pi-search"></i>
+    <input pInputText type="text" placeholder="Buscar por nombre o documento..." [(ngModel)]="busqueda" (input)="buscar()" />
+  </div>
+
+  <div class="tabla-container">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Documento</th>
+          <th>Teléfono</th>
+          <th>Email</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (cliente of clientesFiltrados; track cliente.id) {
+          <tr>
+            <td>
+              <div class="cliente-nombre">
+                <div class="avatar">{{ cliente.nombre.charAt(0) }}</div>
+                {{ cliente.nombre }}
+              </div>
+            </td>
+            <td>{{ cliente.documento || '-' }}</td>
+            <td>{{ cliente.telefono || '-' }}</td>
+            <td>{{ cliente.email || '-' }}</td>
+            <td>
+              <span class="estado-badge" [class.activo]="cliente.activo" [class.inactivo]="!cliente.activo">
+                {{ cliente.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td>
+              <div class="acciones">
+                <button pButton icon="pi pi-pencil" class="btn-edit" (click)="abrirDialogEditar(cliente)"></button>
+              </div>
+            </td>
+          </tr>
+        }
+        @empty {
+          <tr>
+            <td colspan="6" class="empty">No hay clientes registrados</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <p-dialog
+    [(visible)]="dialogVisible"
+    [header]="editando ? 'Editar Cliente' : 'Nuevo Cliente'"
+    [modal]="true"
+    [style]="{width: '450px'}"
+    [draggable]="false">
+
+    <div class="form-grid">
+      <div class="field full">
+        <label>Nombre completo</label>
+        <input pInputText [(ngModel)]="clienteForm.nombre" placeholder="Juan Pérez" />
+      </div>
+      <div class="field">
+  <label>Documento <span class="required">(8 dígitos)</span></label>
+  <input pInputText [(ngModel)]="clienteForm.documento"
+    placeholder="12345678"
+    maxlength="8"
+    (input)="clienteForm.documento = clienteForm.documento.replace(/\D/g,'')" />
+</div>
+<div class="field">
+  <label>Teléfono <span class="required">(9 dígitos)</span></label>
+  <input pInputText [(ngModel)]="clienteForm.telefono"
+    placeholder="999888777"
+    maxlength="9"
+    (input)="clienteForm.telefono = clienteForm.telefono.replace(/\D/g,'')" />
+</div>
+      <div class="field full">
+        <label>Email</label>
+        <input pInputText [(ngModel)]="clienteForm.email" placeholder="cliente@email.com" />
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button pButton label="Cancelar" class="btn-cancelar" (click)="dialogVisible = false"></button>
+      <button pButton label="Guardar" icon="pi pi-check" class="btn-dorado" [loading]="loading" (click)="guardar()"></button>
+    </ng-template>
+  </p-dialog>
+</div>

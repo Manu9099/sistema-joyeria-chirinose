@@ -1,0 +1,175 @@
+<div class="reportes">
+
+  <div class="page-header">
+    <div>
+      <h1>Reportes</h1>
+      <p>Análisis y estadísticas de ventas</p>
+    </div>
+    <button pButton label="Exportar CSV" icon="pi pi-download" class="btn-dorado" (click)="exportarCSV()"></button>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="filtros-card">
+    <div class="filtros">
+      <div class="filtro-field">
+        <label>Desde</label>
+        <input type="date" [(ngModel)]="fechaInicio" class="date-input" (change)="aplicarFiltros()" />
+      </div>
+      <div class="filtro-field">
+        <label>Hasta</label>
+        <input type="date" [(ngModel)]="fechaFin" class="date-input" (change)="aplicarFiltros()" />
+      </div>
+      <button pButton label="Filtrar" icon="pi pi-filter" class="btn-dorado" (click)="aplicarFiltros()"></button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon ingresos">
+        <i class="pi pi-dollar"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-label">Ingresos Totales</span>
+        <span class="stat-value">S/ {{ totalIngresos | number:'1.2-2' }}</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon ventas">
+        <i class="pi pi-shopping-cart"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-label">Ventas en Período</span>
+        <span class="stat-value">{{ totalVentas }}</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon ticket">
+        <i class="pi pi-tag"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-label">Ticket Promedio</span>
+        <span class="stat-value">S/ {{ ticketPromedio | number:'1.2-2' }}</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon hoy">
+        <i class="pi pi-calendar"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-label">Ventas Este Mes</span>
+        <span class="stat-value">{{ ventasMes }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRAFICO DE BARRAS -->
+  <div class="chart-card">
+    <h2>Ventas por Mes (Año actual)</h2>
+    <div class="bar-chart">
+      @for (item of getVentasPorMes(); track item.mes) {
+        <div class="bar-item">
+          <div class="bar-wrapper">
+            <div class="bar-fill"
+              [style.height.%]="(item.total / getMaxVentas()) * 100"
+              [title]="'S/ ' + item.total">
+              @if (item.total > 0) {
+                <span class="bar-value">S/ {{ item.total | number:'1.0-0' }}</span>
+              }
+            </div>
+          </div>
+          <span class="bar-label">{{ item.mes }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="rankings-grid">
+
+    <!-- PRODUCTOS MAS VENDIDOS -->
+    <div class="ranking-card">
+      <h2>🏆 Productos Más Vendidos</h2>
+      @if (productosMasVendidos.length === 0) {
+        <div class="empty-state">
+          <i class="pi pi-inbox"></i>
+          <p>Sin datos en el período</p>
+        </div>
+      }
+      @for (producto of productosMasVendidos; track producto.nombre; let i = $index) {
+        <div class="ranking-item">
+          <div class="ranking-pos" [class.gold]="i===0" [class.silver]="i===1" [class.bronze]="i===2">
+            {{ i + 1 }}
+          </div>
+          <div class="ranking-info">
+            <span class="ranking-nombre">{{ producto.nombre }}</span>
+            <span class="ranking-sub">{{ producto.cantidad }} unidades vendidas</span>
+          </div>
+          <span class="ranking-valor">S/ {{ producto.ingresos | number:'1.2-2' }}</span>
+        </div>
+      }
+    </div>
+
+    <!-- CLIENTES FRECUENTES -->
+    <div class="ranking-card">
+      <h2>⭐ Clientes Frecuentes</h2>
+      @if (clientesFrecuentes.length === 0) {
+        <div class="empty-state">
+          <i class="pi pi-users"></i>
+          <p>Sin datos en el período</p>
+        </div>
+      }
+      @for (cliente of clientesFrecuentes; track cliente.nombre; let i = $index) {
+        <div class="ranking-item">
+          <div class="ranking-pos" [class.gold]="i===0" [class.silver]="i===1" [class.bronze]="i===2">
+            {{ i + 1 }}
+          </div>
+          <div class="ranking-info">
+            <span class="ranking-nombre">{{ cliente.nombre }}</span>
+            <span class="ranking-sub">{{ cliente.compras }} compras</span>
+          </div>
+          <span class="ranking-valor">S/ {{ cliente.total | number:'1.2-2' }}</span>
+        </div>
+      }
+    </div>
+
+  </div>
+
+  <!-- TABLA DE VENTAS -->
+  <div class="tabla-card">
+    <h2>Detalle de Ventas</h2>
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Boleta N°</th>
+          <th>Cliente</th>
+          <th>Total</th>
+          <th>Estado</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (venta of ventasFiltradas; track venta.id) {
+          <tr>
+            <td><span class="codigo">#{{ venta.id?.substring(0,8).toUpperCase() }}</span></td>
+            <td>{{ venta.cliente?.nombre || '-' }}</td>
+            <td><span class="total-val">S/ {{ venta.total }}</span></td>
+            <td>
+              <span class="estado-badge"
+                [class.pagado]="venta.estado === 'PAGADO'"
+                [class.pendiente]="venta.estado === 'PENDIENTE'">
+                {{ venta.estado }}
+              </span>
+            </td>
+            <td>{{ venta.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+          </tr>
+        }
+        @empty {
+          <tr>
+            <td colspan="5" class="empty">No hay ventas en el período seleccionado</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+</div>

@@ -1,0 +1,163 @@
+<div class="productos">
+  <p-toast></p-toast>
+
+  <div class="page-header">
+    <div>
+      <h1>Productos</h1>
+      <p>Gestión de inventario de joyas</p>
+    </div>
+    <button pButton label="Nuevo Producto" icon="pi pi-plus" class="btn-dorado" (click)="abrirDialogNuevo()"></button>
+  </div>
+
+  <div class="search-bar">
+    <i class="pi pi-search"></i>
+    <input
+      pInputText
+      type="text"
+      placeholder="Buscar por código o descripción..."
+      [(ngModel)]="busqueda"
+      (input)="buscar()"
+    />
+  </div>
+
+  <div class="tabla-container">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Descripción</th>
+          <th>Quilates</th>
+          <th>Peso (g)</th>
+          <th>Precio Compra</th>
+          <th>Precio Venta</th>
+          <th>Stock</th>
+          <th>Acciones</th>
+          <th>Foto</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (producto of productosFiltrados; track producto.id) {
+          <tr>
+            <td><span class="codigo">{{ producto.codigo }}</span></td>
+            <td>{{ producto.descripcion }}</td>
+            <td><span class="quilates">{{ producto.quilates }}K</span></td>
+            <td>{{ producto.pesoGramos }}g</td>
+            <td>S/ {{ producto.precioCompra }}</td>
+            <td>S/ {{ producto.precioVenta }}</td>
+            <td>
+              <span class="stock-badge" [class.danger]="producto.stockActual === 0" [class.warn]="producto.stockActual <= 3 && producto.stockActual > 0" [class.success]="producto.stockActual > 3">
+                {{ producto.stockActual }}
+              </span>
+            </td>
+            <td>
+              <div class="acciones">
+                <button pButton icon="pi pi-pencil" class="btn-edit" (click)="abrirDialogEditar(producto)"></button>
+                <button pButton icon="pi pi-trash" class="btn-delete" (click)="eliminar(producto.id)"></button>
+              </div>
+            </td>
+<td>
+ <img *ngIf="producto.fotoUrl" 
+     [src]="producto.fotoUrl + '?t=' + producto.updatedAt" 
+     style="width:48px;height:48px;object-fit:cover;border-radius:8px;"
+     alt="foto" />
+  <span *ngIf="!producto.fotoUrl">—</span>
+</td>
+
+          </tr>
+        }
+        @empty {
+          <tr>
+            <td colspan="8" class="empty">No hay productos registrados</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <p-dialog
+    [(visible)]="dialogVisible"
+    [header]="editando ? 'Editar Producto' : 'Nuevo Producto'"
+    [modal]="true"
+    [style]="{width: '500px'}"
+    [draggable]="false">
+
+    <div class="form-grid">
+      <div class="field">
+        <label>Código</label>
+        <input pInputText [(ngModel)]="productoForm.codigo" placeholder="JOY001" />
+      </div>
+
+      <!-- Quilates -->
+<div class="field">
+  <label>Quilates</label>
+  <input pInputText type="number" [(ngModel)]="productoForm.quilates" placeholder="24" min="0" />
+</div>
+     
+      <div class="field full">
+        <label>Descripción</label>
+        <input pInputText [(ngModel)]="productoForm.descripcion" placeholder="Anillo de oro 24K" />
+      </div>
+
+<!-- Precio Compra -->
+<div class="field">
+  <label>Precio Compra</label>
+  <input pInputText type="number" [(ngModel)]="productoForm.precioCompra" placeholder="0.00" min="0" (input)="validarPrecios()" />
+</div>
+
+<!-- Precio Venta -->
+<div class="field">
+  <label>Precio Venta</label>
+  <input pInputText type="number" [(ngModel)]="productoForm.precioVenta" placeholder="0.00" min="0" (input)="validarPrecios()" />
+  <small *ngIf="errorPrecios" style="color:red;">⚠️ El precio de venta no puede ser menor al de compra</small>
+</div>
+
+<!-- Peso -->
+<div class="field">
+  <label>Peso (gramos)</label>
+  <input pInputText type="number" [(ngModel)]="productoForm.pesoGramos" placeholder="0.00" min="0" />
+</div>
+
+<!-- Stock -->
+<div class="field">
+  <label>Stock Inicial</label>
+  <input pInputText type="number" [(ngModel)]="productoForm.stockActual" placeholder="0" min="0" />
+</div>
+
+<div style="margin-top:12px;">
+  <label style="display:block;margin-bottom:6px;">Foto</label>
+
+  <input type="file" accept="image/*" (change)="onFileSelected($event)" />
+
+  <div *ngIf="previewUrl" style="margin-top:10px;">
+    <img [src]="previewUrl"
+         style="max-width:220px;max-height:220px;object-fit:cover;border-radius:12px;border:1px solid #ddd;" />
+  </div>
+
+  <div style="margin-top:10px;display:flex;gap:8px;">
+    <button pButton type="button" label="Subir foto"
+            icon="pi pi-upload"
+            (click)="subirFotoProducto()"
+            [disabled]="!selectedFile || !editando || loading">
+    </button>
+
+    <button pButton type="button" label="Eliminar foto"
+            icon="pi pi-trash"
+            class="p-button-danger"
+            (click)="eliminarFotoProducto()"
+            [disabled]="!editando || !productoForm?.fotoUrl || loading">
+    </button>
+  </div>
+
+  <small *ngIf="!editando" style="display:block;margin-top:6px;color:#777;">
+    Guarda el producto primero para poder subir la foto.
+  </small>
+</div>
+      
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button pButton label="Cancelar" class="btn-cancelar" (click)="dialogVisible = false"></button>
+      <button pButton label="Guardar" icon="pi pi-check" class="btn-dorado" [loading]="loading" (click)="guardar()"></button>
+    </ng-template>
+  </p-dialog>
+</div>

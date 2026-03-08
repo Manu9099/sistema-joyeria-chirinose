@@ -1,0 +1,90 @@
+<div class="layout">
+  <div class="sidebar">
+
+    <div class="sidebar-logo">
+      <span class="logo-icon">✦</span>
+      <span class="logo-text">JOYERÍA</span>
+    </div>
+
+      <!-- CAMPANA DE NOTIFICACIONES -->
+  <div class="notif-wrapper">
+    <button class="notif-btn" (click)="toggleNotificaciones()">
+      <i class="pi pi-bell"></i>
+      @if (notificaciones.length > 0) {
+        <span class="notif-badge">{{ notificaciones.length }}</span>
+      }
+    </button>
+
+    @if (mostrarNotificaciones) {
+      <div class="notif-dropdown">
+        <div class="notif-header">
+          <span>⚠️ Bajo Stock</span>
+          <span class="notif-count">{{ notificaciones.length }}</span>
+        </div>
+        @if (notificaciones.length === 0) {
+          <div class="notif-empty">
+            <i class="pi pi-check-circle"></i>
+            <span>Todo en orden</span>
+          </div>
+        }
+        @for (producto of notificaciones; track producto.id) {
+          <div class="notif-item" [class.critico]="producto.stockActual === 0">
+            <div class="notif-item-info">
+              <span class="notif-item-nombre">{{ producto.descripcion }}</span>
+              <span class="notif-item-codigo">{{ producto.codigo }}</span>
+            </div>
+            <span class="notif-item-stock" [class.cero]="producto.stockActual === 0">
+              {{ producto.stockActual === 0 ? 'Sin stock' : producto.stockActual + ' unid.' }}
+            </span>
+          </div>
+        }
+        <a routerLink="/productos" class="notif-footer" (click)="mostrarNotificaciones = false">
+          Ver todos los productos →
+        </a>
+      </div>
+    }
+  </div>
+<a routerLink="/perfil" class="perfil-btn">
+  <div class="user-avatar">{{ getUsuario()?.nombre?.charAt(0) }}</div>
+  <div class="user-info">
+    <span class="user-nombre">{{ getUsuario()?.nombre }}</span>
+    <span class="user-rol">{{ getUsuario()?.rol }}</span>
+  </div>
+  <i class="pi pi-cog"></i>
+</a>
+
+
+
+    <nav class="sidebar-menu">
+      @for (item of menuItems; track item.route) {
+         @if (item.rol === 'ALL' || getUsuario()?.rol === item.rol) {
+        <a [routerLink]="item.route" routerLinkActive="active" class="menu-item">
+          <i [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+        }
+    </nav>
+<!-- PRECIO ORO -->
+<div class="precio-oro-widget">
+  <div class="precio-oro-content">
+    <span class="precio-oro-label">✦ Precio del Oro</span>
+    <span class="precio-oro-valor">S/ {{ precioOro | number:'1.2-2' }}/g</span>
+  </div>
+</div>
+
+
+
+    <div class="sidebar-footer">
+      <button class="logout-btn" (click)="logout()">
+        <i class="pi pi-sign-out"></i>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
+
+  </div>
+
+  <div class="main-content">
+    <router-outlet></router-outlet>
+  </div>
+</div>

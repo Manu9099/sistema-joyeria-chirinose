@@ -1,0 +1,174 @@
+<div class="precio-oro">
+  <p-toast></p-toast>
+
+  <div class="page-header">
+    <div>
+      <h1>✦ Precio del Oro</h1>
+      <p>Gestión y seguimiento del precio del oro por gramo</p>
+    </div>
+    <button pButton label="Actualizar Precio" icon="pi pi-refresh" class="btn-dorado" (click)="abrirDialog()"></button>
+  </div>
+
+  <!-- PRECIO ACTUAL -->
+  <div class="precio-actual-grid">
+
+    <div class="precio-hero">
+      <div class="precio-hero-top">
+        <span class="precio-label">Precio Actual por Gramo</span>
+        @if (getVariacion() !== 0) {
+          <span class="variacion" [class.sube]="getVariacion() > 0" [class.baja]="getVariacion() < 0">
+            {{ getVariacion() > 0 ? '↑' : '↓' }} {{ getVariacion() | number:'1.2-2' }}%
+          </span>
+        }
+      </div>
+      <span class="precio-valor">S/ {{ precioActual?.valorPorGramo | number:'1.2-2' }}</span>
+      <span class="precio-fecha">Actualizado: {{ precioActual?.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+    </div>
+
+    <div class="quilates-grid">
+      <div class="quilate-card">
+        <span class="quilate-label">Oro 24K</span>
+        <span class="quilate-valor">S/ {{ getPrecioQuilates(24) | number:'1.2-2' }}/g</span>
+        <span class="quilate-pureza">99.9% pureza</span>
+      </div>
+      <div class="quilate-card">
+        <span class="quilate-label">Oro 18K</span>
+        <span class="quilate-valor">S/ {{ getPrecioQuilates(18) | number:'1.2-2' }}/g</span>
+        <span class="quilate-pureza">75% pureza</span>
+      </div>
+      <div class="quilate-card">
+        <span class="quilate-label">Oro 14K</span>
+        <span class="quilate-valor">S/ {{ getPrecioQuilates(14) | number:'1.2-2' }}/g</span>
+        <span class="quilate-pureza">58.3% pureza</span>
+      </div>
+      <div class="quilate-card">
+        <span class="quilate-label">Oro 10K</span>
+        <span class="quilate-valor">S/ {{ getPrecioQuilates(10) | number:'1.2-2' }}/g</span>
+        <span class="quilate-pureza">41.7% pureza</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- GRAFICO HISTORIAL -->
+  @if (historial.length > 1) {
+    <div class="chart-card">
+      <div class="card-header">
+        <h2>Historial de Precios</h2>
+        <span class="badge">Últimos {{ historial.length }} registros</span>
+      </div>
+      <div class="bar-chart">
+        @for (item of historial; track item.id) {
+          <div class="bar-item">
+            <div class="bar-wrapper">
+              <div class="bar-fill" [style.height.%]="getBarHeight(item.valorPorGramo)">
+                <span class="bar-tooltip">S/ {{ item.valorPorGramo }}</span>
+              </div>
+            </div>
+            <span class="bar-label">{{ item.createdAt | date:'dd/MM' }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- TABLA HISTORIAL -->
+  <div class="tabla-card">
+    <div class="card-header-tabla">
+      <h2>Historial Completo</h2>
+    </div>
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Precio por Gramo</th>
+          <th>Oro 24K</th>
+          <th>Oro 18K</th>
+          <th>Oro 14K</th>
+          <th>Fecha</th>
+          <th>Variación</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (precio of historial; track precio.id; let i = $index) {
+          <tr [class.actual]="i === 0">
+            <td>{{ i === 0 ? '⭐' : i + 1 }}</td>
+            <td><span class="precio-badge">S/ {{ precio.valorPorGramo }}</span></td>
+            <td>S/ {{ (precio.valorPorGramo * 1) | number:'1.2-2' }}</td>
+            <td>S/ {{ (precio.valorPorGramo * 0.75) | number:'1.2-2' }}</td>
+            <td>S/ {{ (precio.valorPorGramo * 0.583) | number:'1.2-2' }}</td>
+            <td>{{ precio.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>
+              @if (i < historial.length - 1) {
+                @let variacion = ((precio.valorPorGramo - historial[i+1].valorPorGramo) / historial[i+1].valorPorGramo) * 100;
+                <span class="variacion-badge" [class.sube]="variacion > 0" [class.baja]="variacion < 0" [class.igual]="variacion === 0">
+                  {{ variacion > 0 ? '↑' : variacion < 0 ? '↓' : '→' }} {{ variacion | number:'1.2-2' }}%
+                </span>
+              } @else {
+                <span class="variacion-badge igual">— Inicial</span>
+              }
+            </td>
+          </tr>
+        }
+        @empty {
+          <tr>
+            <td colspan="7" class="empty">No hay registros de precio</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- DIALOG -->
+  <p-dialog
+    [(visible)]="dialogVisible"
+    header="Actualizar Precio del Oro"
+    [modal]="true"
+    [style]="{width: '400px'}"
+    [draggable]="false">
+
+    <div class="form-dialog">
+      <div class="precio-actual-info">
+        <span>Precio actual:</span>
+        <span class="precio-actual-val">S/ {{ precioActual?.valorPorGramo | number:'1.2-2' }}</span>
+      </div>
+
+      <div class="field">
+        <label>Nuevo precio por gramo (S/)</label>
+        <input pInputText
+          type="number"
+          [(ngModel)]="precioForm.valorPorGramo"
+          placeholder="65.50"
+          step="0.01"
+          min="0" />
+      </div>
+
+      @if (precioForm.valorPorGramo) {
+        <div class="preview-quilates">
+          <div class="preview-item">
+            <span>24K:</span>
+            <span>S/ {{ precioForm.valorPorGramo | number:'1.2-2' }}/g</span>
+          </div>
+          <div class="preview-item">
+            <span>18K:</span>
+            <span>S/ {{ precioForm.valorPorGramo * 0.75 | number:'1.2-2' }}/g</span>
+          </div>
+          <div class="preview-item">
+            <span>14K:</span>
+            <span>S/ {{ precioForm.valorPorGramo * 0.583 | number:'1.2-2' }}/g</span>
+          </div>
+          <div class="preview-item">
+            <span>10K:</span>
+            <span>S/ {{ precioForm.valorPorGramo * 0.417 | number:'1.2-2' }}/g</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button pButton label="Cancelar" class="btn-cancelar" (click)="dialogVisible = false"></button>
+      <button pButton label="Actualizar" icon="pi pi-check" class="btn-dorado" [loading]="loading" (click)="guardar()"></button>
+    </ng-template>
+  </p-dialog>
+
+</div>

@@ -1,0 +1,146 @@
+<div class="perfil">
+  <p-toast></p-toast>
+
+  <div class="page-header">
+    <div>
+      <h1>Mi Perfil</h1>
+      <p>Gestiona tu información personal y seguridad</p>
+    </div>
+  </div>
+
+  @if (perfil) {
+    <div class="perfil-grid">
+
+      <!-- TARJETA DE PERFIL -->
+      <div class="perfil-card">
+        <div class="perfil-avatar-section">
+          <div class="avatar-grande">{{ getIniciales() }}</div>
+          <div class="perfil-info">
+            <h2>{{ perfil.nombre }}</h2>
+            <span class="rol-badge" [style.background]="getRolColor() + '22'" [style.color]="getRolColor()">
+              {{ perfil.rol }}
+            </span>
+            <span class="perfil-email">{{ perfil.email }}</span>
+            <span class="perfil-desde">Miembro desde {{ perfil.createdAt | date:'MMMM yyyy' }}</span>
+          </div>
+        </div>
+
+        <!-- EDITAR NOMBRE -->
+        <div class="seccion">
+          <div class="seccion-header">
+            <h3>Información Personal</h3>
+            @if (!editandoNombre) {
+              <button pButton icon="pi pi-pencil" label="Editar" class="btn-editar" (click)="editandoNombre = true"></button>
+            }
+          </div>
+
+          <div class="campo">
+            <label>Nombre completo</label>
+            @if (editandoNombre) {
+              <div class="campo-edit">
+                <input pInputText [(ngModel)]="perfilForm.nombre" placeholder="Tu nombre" />
+                <button pButton icon="pi pi-check" class="btn-dorado" [loading]="loadingPerfil" (click)="guardarPerfil()"></button>
+                <button pButton icon="pi pi-times" class="btn-cancelar-sm" (click)="editandoNombre = false"></button>
+              </div>
+            } @else {
+              <span class="campo-valor">{{ perfil.nombre }}</span>
+            }
+          </div>
+
+          <div class="campo">
+            <label>Email</label>
+            <span class="campo-valor">{{ perfil.email }}</span>
+          </div>
+
+          <div class="campo">
+            <label>Rol</label>
+            <span class="campo-valor" [style.color]="getRolColor()">{{ perfil.rol }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CAMBIAR CONTRASEÑA -->
+      <div class="password-card">
+        <div class="seccion-header">
+          <h3>🔐 Cambiar Contraseña</h3>
+        </div>
+
+        <div class="password-form">
+          <div class="campo-form">
+            <label>Contraseña actual</label>
+            <p-password
+              [(ngModel)]="passwordForm.passwordActual"
+              [feedback]="false"
+              [toggleMask]="true"
+              placeholder="••••••••">
+            </p-password>
+          </div>
+
+          <div class="campo-form">
+            <label>Nueva contraseña</label>
+            <p-password
+              [(ngModel)]="passwordForm.passwordNueva"
+              [toggleMask]="true"
+              placeholder="Mínimo 6 caracteres">
+            </p-password>
+          </div>
+
+          <div class="campo-form">
+            <label>Confirmar nueva contraseña</label>
+            <p-password
+              [(ngModel)]="passwordForm.passwordConfirmar"
+              [feedback]="false"
+              [toggleMask]="true"
+              placeholder="Repite la nueva contraseña">
+            </p-password>
+          </div>
+
+          <!-- INDICADOR DE SEGURIDAD -->
+          @if (passwordForm.passwordNueva) {
+            <div class="seguridad">
+              <span class="seguridad-label">Seguridad:</span>
+              <div class="seguridad-bar">
+                <div class="seguridad-fill"
+                  [class.debil]="passwordForm.passwordNueva.length < 6"
+                  [class.media]="passwordForm.passwordNueva.length >= 6 && passwordForm.passwordNueva.length < 10"
+                  [class.fuerte]="passwordForm.passwordNueva.length >= 10"
+                  [style.width]="passwordForm.passwordNueva.length >= 10 ? '100%' : passwordForm.passwordNueva.length >= 6 ? '60%' : '30%'">
+                </div>
+              </div>
+              <span class="seguridad-texto"
+                [class.debil]="passwordForm.passwordNueva.length < 6"
+                [class.media]="passwordForm.passwordNueva.length >= 6 && passwordForm.passwordNueva.length < 10"
+                [class.fuerte]="passwordForm.passwordNueva.length >= 10">
+                {{ passwordForm.passwordNueva.length < 6 ? 'Débil' : passwordForm.passwordNueva.length < 10 ? 'Media' : 'Fuerte' }}
+              </span>
+            </div>
+          }
+
+          @if (passwordForm.passwordConfirmar && passwordForm.passwordNueva !== passwordForm.passwordConfirmar) {
+            <div class="no-coincide">
+              <i class="pi pi-times-circle"></i>
+              Las contraseñas no coinciden
+            </div>
+          }
+
+          @if (passwordForm.passwordConfirmar && passwordForm.passwordNueva === passwordForm.passwordConfirmar && passwordForm.passwordNueva.length >= 6) {
+            <div class="si-coincide">
+              <i class="pi pi-check-circle"></i>
+              Las contraseñas coinciden
+            </div>
+          }
+
+          <button pButton
+            label="Actualizar Contraseña"
+            icon="pi pi-lock"
+            class="btn-dorado full-width"
+            [loading]="loadingPassword"
+            (click)="cambiarPassword()">
+          </button>
+        </div>
+      </div>
+
+    </div>
+  }
+
+</div>

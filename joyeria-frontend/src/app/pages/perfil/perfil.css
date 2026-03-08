@@ -1,0 +1,239 @@
+.perfil { color: white; }
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #b48c32;
+  margin: 0;
+}
+
+.page-header p {
+  color: rgba(255,255,255,0.5);
+  margin: 4px 0 0 0;
+  font-size: 14px;
+}
+
+.perfil-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.perfil-card, .password-card {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border: 1px solid rgba(180,140,50,0.2);
+  border-radius: 16px;
+  padding: 28px;
+}
+
+.perfil-avatar-section {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.avatar-grande {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #b48c32, #d4a847);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 4px 20px rgba(180,140,50,0.3);
+}
+
+.perfil-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.perfil-info h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+}
+
+.rol-badge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.perfil-email {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+}
+
+.perfil-desde {
+  font-size: 12px;
+  color: rgba(255,255,255,0.3);
+  text-transform: capitalize;
+}
+
+
+.seccion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.seccion-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+}
+
+.btn-editar {
+  background: rgba(180,140,50,0.15) !important;
+  border: 1px solid rgba(180,140,50,0.3) !important;
+  color: #b48c32 !important;
+  border-radius: 8px !important;
+  font-size: 12px !important;
+  padding: 6px 12px !important;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.campo label {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.campo-valor {
+  font-size: 15px;
+  color: rgba(255,255,255,0.85);
+  font-weight: 500;
+}
+
+.campo-edit {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.campo-edit input { flex: 1; }
+
+.btn-dorado {
+  background: linear-gradient(135deg, #b48c32, #d4a847) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+}
+
+.btn-dorado.full-width { width: 100%; justify-content: center; }
+
+.btn-cancelar-sm {
+  background: rgba(252,129,129,0.15) !important;
+  border: 1px solid rgba(252,129,129,0.3) !important;
+  color: #fc8181 !important;
+  border-radius: 8px !important;
+}
+
+/* PASSWORD */
+.password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.campo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.campo-form label {
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+  font-weight: 500;
+}
+
+.campo-form p-password { width: 100%; }
+
+.seguridad {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.seguridad-label {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  white-space: nowrap;
+}
+
+.seguridad-bar {
+  flex: 1;
+  height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.seguridad-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.seguridad-fill.debil { background: #fc8181; }
+.seguridad-fill.media { background: #f6ad55; }
+.seguridad-fill.fuerte { background: #68d391; }
+
+.seguridad-texto {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.seguridad-texto.debil { color: #fc8181; }
+.seguridad-texto.media { color: #f6ad55; }
+.seguridad-texto.fuerte { color: #68d391; }
+
+.no-coincide {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #fc8181;
+  background: rgba(252,129,129,0.1);
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+.si-coincide {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #68d391;
+  background: rgba(104,211,145,0.1);
+  padding: 8px 12px;
+  border-radius: 8px;
+}

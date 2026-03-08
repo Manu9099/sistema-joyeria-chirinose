@@ -1,0 +1,175 @@
+<div class="dashboard">
+
+  <div class="page-header">
+    <div>
+      <h1>Dashboard</h1>
+      <p>Bienvenido, {{ authService.getUsuario()?.nombre }} 👋</p>
+    </div>
+    <span class="fecha">{{ today | date:'EEEE, d MMMM yyyy' }}</span>
+  </div>
+
+  <!-- STATS PRINCIPALES -->
+  <div class="stats-grid">
+    <div class="stat-card gold">
+      <div class="stat-top">
+        <span class="stat-label">Ingresos del Mes</span>
+        <div class="stat-icon"><i class="pi pi-dollar"></i></div>
+      </div>
+      <span class="stat-value">S/ {{ ingresosMes | number:'1.2-2' }}</span>
+      <span class="stat-sub">Total acumulado: S/ {{ ingresosTotales | number:'1.2-2' }}</span>
+    </div>
+
+    <div class="stat-card blue">
+      <div class="stat-top">
+        <span class="stat-label">Ventas Totales</span>
+        <div class="stat-icon"><i class="pi pi-shopping-cart"></i></div>
+      </div>
+      <span class="stat-value">{{ totalVentas }}</span>
+      <span class="stat-sub">{{ ventasHoy }} ventas hoy</span>
+    </div>
+
+    <div class="stat-card green">
+      <div class="stat-top">
+        <span class="stat-label">Clientes</span>
+        <div class="stat-icon"><i class="pi pi-users"></i></div>
+      </div>
+      <span class="stat-value">{{ totalClientes }}</span>
+      <span class="stat-sub">Clientes registrados</span>
+    </div>
+
+    <div class="stat-card orange">
+      <div class="stat-top">
+        <span class="stat-label">Productos</span>
+        <div class="stat-icon"><i class="pi pi-box"></i></div>
+      </div>
+      <span class="stat-value">{{ totalProductos }}</span>
+      <span class="stat-sub">{{ productosBajoStock.length }} con bajo stock</span>
+    </div>
+  </div>
+
+  <!-- GRAFICO + ULTIMAS VENTAS -->
+  <div class="middle-grid">
+
+    <!-- GRAFICO BARRAS -->
+    <div class="chart-card">
+      <div class="card-header">
+        <h2>Ingresos por Mes</h2>
+        <span class="year-badge">{{ today | date:'yyyy' }}</span>
+      </div>
+      <div class="bar-chart">
+        @for (item of ventasPorMes; track item.mes) {
+          <div class="bar-item">
+            <div class="bar-wrapper">
+              <div class="bar-fill" [style.height.%]="getBarHeight(item.total)">
+                @if (item.total > 0) {
+                  <span class="bar-tooltip">S/ {{ item.total | number:'1.0-0' }}</span>
+                }
+              </div>
+            </div>
+            <span class="bar-label">{{ item.mes }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- ULTIMAS VENTAS -->
+    <div class="dashboard-card">
+      <div class="card-header">
+        <h2>Últimas Ventas</h2>
+        <a routerLink="/ventas" class="ver-mas">Ver todas →</a>
+      </div>
+      <div class="ventas-list">
+        @if (ultimasVentas.length === 0) {
+          <div class="empty-state">
+            <i class="pi pi-inbox"></i>
+            <p>No hay ventas registradas</p>
+          </div>
+        }
+        @for (venta of ultimasVentas; track venta.id) {
+          <div class="venta-item">
+            <div class="venta-avatar">
+              <i class="pi pi-receipt"></i>
+            </div>
+            <div class="venta-info">
+              <span class="venta-id">#{{ venta.id?.substring(0,8).toUpperCase() }}</span>
+              <span class="venta-cliente">{{ venta.cliente?.nombre || '-' }}</span>
+            </div>
+            <div class="venta-right">
+              <span class="venta-total">S/ {{ venta.total }}</span>
+              <span class="venta-estado" [class]="'estado-' + venta.estado?.toLowerCase()">
+                {{ venta.estado }}
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BAJO STOCK + ACCESOS RAPIDOS -->
+  <div class="bottom-grid">
+
+    <!-- BAJO STOCK -->
+    <div class="dashboard-card">
+      <div class="card-header">
+        <h2>⚠️ Bajo Stock</h2>
+        <a routerLink="/productos" class="ver-mas">Ver todos →</a>
+      </div>
+      @if (productosBajoStock.length === 0) {
+        <div class="empty-state">
+          <i class="pi pi-check-circle"></i>
+          <p>Stock en niveles normales ✅</p>
+        </div>
+      }
+      @for (producto of productosBajoStock; track producto.id) {
+        <div class="stock-item">
+          <div class="stock-info">
+            <span class="stock-nombre">{{ producto.descripcion }}</span>
+            <span class="stock-codigo">{{ producto.codigo }}</span>
+          </div>
+          <div class="stock-right">
+            <span class="stock-cantidad" [class.critico]="producto.stockActual === 0">
+              {{ producto.stockActual }} unid.
+            </span>
+            <div class="stock-bar">
+              <div class="stock-bar-fill" [class.critico]="producto.stockActual === 0"
+                [style.width.%]="Math.min(producto.stockActual * 10, 100)"></div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- ACCESOS RAPIDOS -->
+    <div class="dashboard-card">
+      <div class="card-header">
+        <h2>⚡ Accesos Rápidos</h2>
+      </div>
+      <div class="accesos-grid">
+        <a routerLink="/ventas" class="acceso-item">
+          <div class="acceso-icon ventas"><i class="pi pi-plus-circle"></i></div>
+          <span>Nueva Venta</span>
+        </a>
+        <a routerLink="/productos" class="acceso-item">
+          <div class="acceso-icon productos"><i class="pi pi-box"></i></div>
+          <span>Productos</span>
+        </a>
+        <a routerLink="/clientes" class="acceso-item">
+          <div class="acceso-icon clientes"><i class="pi pi-user-plus"></i></div>
+          <span>Clientes</span>
+        </a>
+        <a routerLink="/reportes" class="acceso-item">
+          <div class="acceso-icon reportes"><i class="pi pi-chart-bar"></i></div>
+          <span>Reportes</span>
+        </a>
+        <a routerLink="/proveedores" class="acceso-item">
+          <div class="acceso-icon proveedores"><i class="pi pi-truck"></i></div>
+          <span>Proveedores</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+</div>

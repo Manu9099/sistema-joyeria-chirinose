@@ -1,0 +1,111 @@
+<div class="usuarios">
+  <p-toast></p-toast>
+
+  <div class="page-header">
+    <div>
+      <h1>Usuarios</h1>
+      <p>Gestión de usuarios del sistema</p>
+    </div>
+    <button pButton label="Nuevo Usuario" icon="pi pi-plus" class="btn-dorado" (click)="abrirDialogNuevo()"></button>
+  </div>
+
+  <div class="search-bar">
+    <i class="pi pi-search"></i>
+    <input pInputText type="text" placeholder="Buscar por nombre o email..." [(ngModel)]="busqueda" (input)="buscar()" />
+  </div>
+
+  <div class="tabla-container">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Email</th>
+          <th>Rol</th>
+          <th>Estado</th>
+          <th>Miembro desde</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (usuario of usuariosFiltrados; track usuario.id) {
+          <tr>
+            <td>
+              <div class="usuario-nombre">
+                <div class="avatar" [class.admin]="usuario.rol === 'ADMIN'">
+                  {{ usuario.nombre.charAt(0) }}
+                </div>
+                {{ usuario.nombre }}
+              </div>
+            </td>
+            <td>{{ usuario.email }}</td>
+            <td>
+              <span class="rol-badge" [class.admin]="usuario.rol === 'ADMIN'" [class.usuario]="usuario.rol === 'USUARIO'">
+                {{ usuario.rol === 'ADMIN' ? '👑 Admin' : '👤 Usuario' }}
+              </span>
+            </td>
+            <td>
+              <span class="estado-badge" [class.activo]="usuario.activo" [class.inactivo]="!usuario.activo">
+                {{ usuario.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td>{{ usuario.createdAt | date:'dd/MM/yyyy' }}</td>
+            <td>
+              <div class="acciones">
+                <button pButton icon="pi pi-pencil" class="btn-edit" (click)="abrirDialogEditar(usuario)" title="Editar"></button>
+                <button pButton
+                  [icon]="usuario.activo ? 'pi pi-ban' : 'pi pi-check'"
+                  [class]="usuario.activo ? 'btn-desactivar' : 'btn-activar'"
+                  (click)="toggleActivo(usuario)"
+                  [title]="usuario.activo ? 'Desactivar' : 'Activar'">
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+        @empty {
+          <tr>
+            <td colspan="6" class="empty">No hay usuarios registrados</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <p-dialog
+    [(visible)]="dialogVisible"
+    [header]="editando ? 'Editar Usuario' : 'Nuevo Usuario'"
+    [modal]="true"
+    [style]="{width: '450px'}"
+    [draggable]="false">
+
+    <div class="form-grid">
+      <div class="field full">
+        <label>Nombre completo</label>
+        <input pInputText [(ngModel)]="usuarioForm.nombre" placeholder="Juan Pérez" />
+      </div>
+      <div class="field full">
+        <label>Email</label>
+        <input pInputText [(ngModel)]="usuarioForm.email" placeholder="usuario@email.com" [disabled]="editando" />
+      </div>
+      <div class="field full">
+        <label>{{ editando ? 'Nueva contraseña (opcional)' : 'Contraseña' }}</label>
+        <input pInputText type="password" [(ngModel)]="usuarioForm.password"
+          [placeholder]="editando ? 'Dejar vacío para no cambiar' : 'Mínimo 6 caracteres'" />
+      </div>
+      <div class="field full">
+        <label>Rol</label>
+        <select [(ngModel)]="usuarioForm.rol" class="select-input">
+          @for (rol of roles; track rol.value) {
+            <option [value]="rol.value">{{ rol.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button pButton label="Cancelar" class="btn-cancelar" (click)="dialogVisible = false"></button>
+      <button pButton label="Guardar" icon="pi pi-check" class="btn-dorado" [loading]="loading" (click)="guardar()"></button>
+    </ng-template>
+  </p-dialog>
+
+</div>

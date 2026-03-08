@@ -1,0 +1,151 @@
+<div class="ventas">
+  <p-toast></p-toast>
+
+  <div class="page-header">
+    <div>
+      <h1>Ventas</h1>
+      <p>Registro y gestión de ventas</p>
+    </div>
+    <button pButton label="Nueva Venta" icon="pi pi-plus" class="btn-dorado" (click)="abrirDialogNuevo()"></button>
+  </div>
+
+  <div class="tabla-container">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Boleta N°</th>
+          <th>Cliente</th>
+          <th>Total</th>
+          <th>Estado</th>
+          <th>Fecha</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (venta of ventas; track venta.id) {
+          <tr>
+            <td><span class="codigo">#{{ venta.id?.substring(0,8).toUpperCase() }}</span></td>
+            <td>{{ venta.cliente?.nombre || '-' }}</td>
+            <td><span class="total">S/ {{ venta.total }}</span></td>
+            <td>
+              <span class="estado-badge"
+                [class.pagado]="venta.estado === 'PAGADO'"
+                [class.pendiente]="venta.estado === 'PENDIENTE'"
+                [class.anulado]="venta.estado === 'ANULADO'">
+                {{ venta.estado }}
+              </span>
+            </td>
+            <td>{{ venta.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>
+              <div class="acciones">
+                <button pButton icon="pi pi-file-pdf" class="btn-pdf" (click)="descargarBoleta(venta.id)" title="Descargar boleta"></button>
+                @if (venta.estado !== 'ANULADO') {
+                  <button pButton icon="pi pi-ban" class="btn-anular" (click)="anular(venta.id)" title="Anular venta"></button>
+                }
+              </div>
+            </td>
+          </tr>
+        }
+        @empty {
+          <tr>
+            <td colspan="6" class="empty">No hay ventas registradas</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <p-dialog
+    [(visible)]="dialogVisible"
+    header="Nueva Venta"
+    [modal]="true"
+    [style]="{width: '650px'}"
+    [draggable]="false">
+
+    <div class="venta-form">
+
+      <!-- Cliente -->
+      <div class="field">
+        <label>Cliente</label>
+        <select [(ngModel)]="ventaForm.clienteId" class="select-input">
+          <option value="">Seleccionar cliente...</option>
+          @for (cliente of clientes; track cliente.id) {
+            <option [value]="cliente.id">{{ cliente.nombre }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Agregar producto -->
+      <div class="agregar-producto">
+        <h3>Productos</h3>
+        <div class="producto-row">
+          <select [(ngModel)]="detalleNuevo.productoId" class="select-input flex-1">
+            <option value="">Seleccionar producto...</option>
+            @for (producto of productos; track producto.id) {
+              <option [value]="producto.id">{{ producto.descripcion }} - S/ {{ producto.precioVenta }} (Stock: {{ producto.stockActual }})</option>
+            }
+          </select>
+          <input type="number" [(ngModel)]="detalleNuevo.cantidad" min="1" class="cantidad-input" placeholder="Cant." />
+          <button pButton icon="pi pi-plus" class="btn-dorado" (click)="agregarDetalle()"></button>
+        </div>
+      </div>
+
+      <!-- Tabla detalles -->
+      @if (ventaForm.detalles.length > 0) {
+        <div class="detalles-tabla">
+          <table class="tabla-mini">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Precio</th>
+                <th>Cant.</th>
+                <th>Subtotal</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (detalle of ventaForm.detalles; track detalle.productoId; let i = $index) {
+                <tr>
+                  <td>{{ detalle.descripcion }}</td>
+                  <td>S/ {{ detalle.precioVenta }}</td>
+                  <td>{{ detalle.cantidad }}</td>
+                  <td>S/ {{ detalle.precioVenta * detalle.cantidad }}</td>
+                  <td><button pButton icon="pi pi-trash" class="btn-delete-sm" (click)="eliminarDetalle(i)"></button></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          <div class="total-row">
+            <span>TOTAL:</span>
+            <span class="total-valor">S/ {{ getTotal() }}</span>
+          </div>
+        </div>
+      }
+
+      <!-- Pago -->
+      <div class="pago-section">
+        <h3>Pago</h3>
+        <div class="pago-row">
+          <div class="field flex-1">
+            <label>Método de pago</label>
+            <select [(ngModel)]="pagoNuevo.metodoPago" class="select-input">
+              @for (metodo of metodosPago; track metodo.value) {
+                <option [value]="metodo.value">{{ metodo.label }}</option>
+              }
+            </select>
+          </div>
+          <div class="field flex-1">
+            <label>Monto</label>
+            <input type="number" [(ngModel)]="pagoNuevo.monto" class="select-input" />
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button pButton label="Cancelar" class="btn-cancelar" (click)="dialogVisible = false"></button>
+      <button pButton label="Registrar Venta" icon="pi pi-check" class="btn-dorado" [loading]="loading" (click)="guardar()"></button>
+    </ng-template>
+  </p-dialog>
+</div>

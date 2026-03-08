@@ -1,0 +1,16 @@
+{
+  "/api": {
+    "target": "http://localhost:8080",
+    "changeOrigin": true,
+    "secure": false,
+    "headers": {
+      "Connection": "keep-alive"
+    },
+    "logLevel": "debug"
+  },
+  "/uploads": {
+    "target": "http://localhost:8080",
+    "changeOrigin": true,
+    "secure": false
+  }
+}
