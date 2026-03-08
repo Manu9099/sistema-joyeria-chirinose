@@ -5,10 +5,10 @@ databases:
     plan: free
 
 services:
-  # Backend - Spring Boot
   - type: web
     name: joyeria-backend
     runtime: java
+    rootDir: inventario
     plan: free
     buildCommand: ./mvnw clean package -DskipTests
     startCommand: java -jar target/*.jar
@@ -27,20 +27,22 @@ services:
           property: password
       - key: SPRING_JPA_HIBERNATE_DDL_AUTO
         value: update
-      - key: SERVER_PORT
-        value: 8080
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRATION
+        value: 86400000
 
-  # Frontend - Estático
   - type: web
     name: joyeria-frontend
     runtime: static
+    rootDir: joyeria-frontend
     plan: free
     buildCommand: npm install && npm run build
-    staticPublishPath: ./dist   # Cámbialo a ./build si usas React CRA
+    staticPublishPath: joyeria-frontend/dist
     routes:
       - type: rewrite
         source: /*
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        value: https://joyeria-backend.onrender.com  # Se actualiza con tu URL real
+        value: https://joyeria-backend.onrender.com
