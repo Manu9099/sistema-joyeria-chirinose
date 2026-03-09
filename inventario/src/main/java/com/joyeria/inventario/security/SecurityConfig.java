@@ -1,6 +1,7 @@
 package com.joyeria.inventario.security;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,31 +68,26 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-
-              .cors(cors -> cors.configurationSource(request -> {
-                        CorsConfiguration config = new CorsConfiguration();
-                        config.addAllowedOriginPattern("http://localhost:*");
-                        config.addAllowedOriginPattern("http://127.0.0.1:*");
-                        config.addAllowedOriginPattern("https://localhost:*");
-                        config.addAllowedOriginPattern("https://127.0.0.1:*");
-                        config.addAllowedOriginPattern("https://*.onrender.com"); // <- agrega esto
-                        config.addAllowedMethod("*");
-                        config.addAllowedHeader("*");
-                        config.setAllowCredentials(true);
-                        return config;
+                .cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowedOrigins(List.of(
+                            "https://sistema-joyeria-chirinose.onrender.com"
+                    ));
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    config.setAllowedHeaders(List.of("*"));
+                    config.setAllowCredentials(true);
+                    return config;
                 }))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(
+                        (request, response, authException) ->
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
+                ))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                        // ✅ AUTH
-                        .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/registro").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-
-                        // ✅ Fotos
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
-
-                        // ✅ Resto API
                         .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
                         .requestMatchers("/api/ventas/**").hasAnyRole("ADMIN", "USUARIO")
                         .requestMatchers("/api/productos/**").hasAnyRole("ADMIN", "USUARIO")
@@ -99,7 +95,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/proveedores/**").hasAnyRole("ADMIN", "USUARIO")
                         .requestMatchers("/api/movimientos/**").hasAnyRole("ADMIN", "USUARIO")
                         .requestMatchers("/api/precio-oro/**").hasAnyRole("ADMIN", "USUARIO")
-                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

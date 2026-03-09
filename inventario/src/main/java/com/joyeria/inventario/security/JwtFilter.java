@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,6 +26,16 @@ public class JwtFilter extends OncePerRequestFilter {
     private UserDetailsServiceImpl userDetailsService;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return HttpMethod.OPTIONS.matches(request.getMethod())
+                || path.startsWith("/api/auth/")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("/uploads/");
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
@@ -40,9 +51,8 @@ public class JwtFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
             String email = jwtUtil.extractUsername(token);
 
-            if (email != null) {
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-                System.out.println("Authorities: " + userDetails.getAuthorities());
 
                 if (jwtUtil.isTokenValid(token, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken =
@@ -56,11 +66,10 @@ public class JwtFilter extends OncePerRequestFilter {
                     SecurityContext context = SecurityContextHolder.createEmptyContext();
                     context.setAuthentication(authToken);
                     SecurityContextHolder.setContext(context);
-                    System.out.println("✅ Autenticado: " + email + " con roles: " + userDetails.getAuthorities());
                 }
             }
         } catch (Exception e) {
-            System.out.println("❌ Error JWT: " + e.getMessage());
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);
