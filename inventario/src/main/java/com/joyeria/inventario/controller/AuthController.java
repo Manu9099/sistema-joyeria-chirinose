@@ -70,19 +70,29 @@ public class AuthController {
 
     @PostMapping("/registro")
     public ResponseEntity<?> registro(@RequestBody Usuario usuario) {
+        if (usuario.getNombre() == null || usuario.getNombre().isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "El nombre es obligatorio"));
+        }
+        if (usuario.getEmail() == null || usuario.getEmail().isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "El email es obligatorio"));
+        }
+        if (usuario.getPassword() == null || usuario.getPassword().isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "La contraseña es obligatoria"));
+        }
         if (usuarioRepository.existsByEmail(usuario.getEmail())) {
-            return ResponseEntity.badRequest().body("El email ya está registrado");
+            return ResponseEntity.badRequest().body(Map.of("error", "El email ya está registrado"));
         }
 
         usuario.setId(UUID.randomUUID().toString());
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
-        if (usuario.getRol() == null) usuario.setRol("usuario");
-        log.info("Nuevo usuario registrado: {}", usuario.getEmail());
-        usuarioRepository.save(usuario);
+        if (usuario.getRol() == null || usuario.getRol().isBlank()) {
+            usuario.setRol("USUARIO");
+        } else {
+            usuario.setRol(usuario.getRol().toUpperCase());
+        }
 
-        Map<String, String> response = new HashMap<>();
-        response.put("mensaje", "Usuario registrado exitosamente");
-        return ResponseEntity.ok(response);
+        usuarioRepository.save(usuario);
+        return ResponseEntity.ok(Map.of("mensaje", "Usuario registrado exitosamente"));
     }
 
 
