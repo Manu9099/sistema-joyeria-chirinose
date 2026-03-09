@@ -6,8 +6,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class VentaService {
-
-  private apiUrl = '/api/ventas';
+// venta.ts
+private apiUrl = 'https://inventario-backend-0lj9.onrender.com/api/ventas';
 
   constructor(private http: HttpClient) {}
 

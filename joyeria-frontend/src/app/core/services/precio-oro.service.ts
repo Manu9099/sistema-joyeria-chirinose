@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class PrecioOroService {
 
-  private apiUrl = '/api/precio-oro';
+private apiUrl = 'https://inventario-backend-0lj9.onrender.com/api/precio-oro';
 
   constructor(private http: HttpClient) {}
 

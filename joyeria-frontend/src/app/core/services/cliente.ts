@@ -7,7 +7,8 @@ import { Observable } from 'rxjs';
 })
 export class ClienteService {
 
-  private apiUrl = '/api/clientes';
+// cliente.ts
+private apiUrl = 'https://inventario-backend-0lj9.onrender.com/api/clientes';
 
   constructor(private http: HttpClient) {}
 

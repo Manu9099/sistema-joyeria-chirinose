@@ -6,8 +6,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ProveedorService {
-
-  private apiUrl = '/api/proveedores';
+private apiUrl = 'https://inventario-backend-0lj9.onrender.com//api/proveedores';
+ 
 
   constructor(private http: HttpClient) {}
 
