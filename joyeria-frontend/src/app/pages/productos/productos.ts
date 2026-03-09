@@ -58,10 +58,10 @@ export class ProductosComponent implements OnInit {
   previewUrl: string | null = null;
 
   // ✅ Para mostrar imagen (si fotoUrl ya viene como "/uploads/...")
-  fotoSrc(producto: any): string | null {
-    if (!producto?.fotoUrl) return null;
-    return producto.fotoUrl; // como tu proxy está ok, esto funciona tal cual
-  }
+fotoSrc(producto: any): string | null {
+  if (!producto?.fotoUrl) return null;
+  return this.productoService.getFotoUrl(producto.fotoUrl);
+}
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -94,7 +94,7 @@ export class ProductosComponent implements OnInit {
         this.productoForm.fotoUrl = r.fotoUrl;
 
         // preview usando la url real del server (ya no blob)
-        this.previewUrl = r.fotoUrl;
+      this.previewUrl = this.productoService.getFotoUrl(r.fotoUrl);
 
         this.messageService.add({
           severity: 'success',
@@ -171,7 +171,9 @@ export class ProductosComponent implements OnInit {
     this.editando = true;
     this.productoForm = { ...producto };
     this.dialogVisible = true;
-    this.previewUrl = producto?.fotoUrl ?? null;
+    this.previewUrl = producto?.fotoUrl
+  ? this.productoService.getFotoUrl(producto.fotoUrl)
+  : null;
 this.selectedFile = null;
   }
 

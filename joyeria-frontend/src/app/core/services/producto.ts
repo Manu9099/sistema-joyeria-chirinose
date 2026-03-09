@@ -49,6 +49,6 @@ getFotoUrl(fotoUrl: string | null | undefined, t?: string | number): string {
     ? fotoUrl
     : `${baseUrl}${fotoUrl.startsWith('/') ? '' : '/'}${fotoUrl}`;
 
-  return t ? `${path}?t=${t}` : path;
+  return t !== undefined && t !== null ? `${path}?t=${t}` : path;
 }
 }
