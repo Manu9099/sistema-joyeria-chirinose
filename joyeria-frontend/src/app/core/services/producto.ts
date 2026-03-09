@@ -40,9 +40,15 @@ export class ProductoService {
   eliminarFoto(productoId: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${productoId}/foto`);
   }
-getFotoUrl(fotoUrl: string): string {
+
+getFotoUrl(fotoUrl: string | null | undefined, t?: string | number): string {
   if (!fotoUrl) return '';
-  if (fotoUrl.startsWith('http')) return fotoUrl;
-  return `https://inventario-backend-0lj9.onrender.com${fotoUrl}`;
+
+  const baseUrl = 'https://inventario-backend-0lj9.onrender.com';
+  const path = fotoUrl.startsWith('http')
+    ? fotoUrl
+    : `${baseUrl}${fotoUrl.startsWith('/') ? '' : '/'}${fotoUrl}`;
+
+  return t ? `${path}?t=${t}` : path;
 }
 }
