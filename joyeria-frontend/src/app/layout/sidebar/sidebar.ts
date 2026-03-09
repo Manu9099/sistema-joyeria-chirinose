@@ -48,14 +48,20 @@ menuItems = [
      this.cargarNotificaciones();
   }
 
-    cargarNotificaciones(): void {
-    this.productoService.listarTodos().subscribe({
-      next: (productos) => {
-        this.notificaciones = productos.filter(p => p.stockActual <= 3 && p.activo);
-      },
-      error: () => this.notificaciones = []
-    });
-  }
+   cargarNotificaciones(): void {
+  this.productoService.listarTodos().subscribe({
+    next: (productos) => {
+      const listaProductos = Array.isArray(productos) ? productos : [];
+      this.notificaciones = listaProductos.filter(
+        p => (p?.stockActual ?? 0) <= 3 && !!p?.activo
+      );
+    },
+    error: (err) => {
+      console.error('Error cargando notificaciones:', err);
+      this.notificaciones = [];
+    }
+  });
+}
 
   toggleNotificaciones(): void {
     this.mostrarNotificaciones = !this.mostrarNotificaciones;
