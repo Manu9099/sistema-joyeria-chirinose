@@ -40,11 +40,9 @@ export class ProductoService {
   eliminarFoto(productoId: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${productoId}/foto`);
   }
-  getFotoUrl(fotoUrl: string): string {
+getFotoUrl(fotoUrl: string): string {
   if (!fotoUrl) return '';
-  // Si ya viene con http, úsala directo
   if (fotoUrl.startsWith('http')) return fotoUrl;
-  // Si es ruta relativa como /uploads/..., apunta al backend
-  return fotoUrl; // con el proxy de Angular ya debería funcionar
+  return `https://inventario-backend-0lj9.onrender.com${fotoUrl}`;
 }
 }
