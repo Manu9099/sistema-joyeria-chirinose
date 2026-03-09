@@ -77,43 +77,39 @@ fotoSrc(producto: any): string | null {
   }
 
   // ✅ Subir foto (solo cuando ya existe ID)
-  subirFotoProducto(): void {
-    if (!this.editando || !this.productoForm?.id) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Primero guarda',
-        detail: 'Debes guardar el producto antes de subir la foto.'
-      });
-      return;
-    }
-    if (!this.selectedFile) return;
+subirFotoProducto(): void {
+  if (!this.editando || !this.productoForm?.id) {
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Primero guarda',
+      detail: 'Debes guardar el producto antes de subir la foto.'
+    });
+    return;
+  }
+  if (!this.selectedFile) return;
 
-    this.productoService.subirFoto(this.productoForm.id, this.selectedFile).subscribe({
-      next: (r) => {
-        // guardamos la url en el form para verla de inmediato
-        this.productoForm.fotoUrl = r.fotoUrl;
-
-        // preview usando la url real del server (ya no blob)
+  this.productoService.subirFoto(this.productoForm.id, this.selectedFile).subscribe({
+    next: (r) => {
+      this.productoForm.fotoUrl = r.fotoUrl;
       this.previewUrl = this.productoService.getFotoUrl(r.fotoUrl);
 
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: 'Foto subida correctamente'
-        });
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Éxito',
+        detail: 'Foto subida correctamente'
+      });
 
-        // refrescar lista para que se vea en tabla
-        this.cargarProductos();
-      },
-      error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudo subir la foto'
-        });
-      }
-    });
-  }
+      this.cargarProductos();
+    },
+    error: () => {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No se pudo subir la foto'
+      });
+    }
+  });
+}
 
   eliminarFotoProducto(): void {
     if (!this.productoForm?.id) return;
@@ -167,15 +163,15 @@ fotoSrc(producto: any): string | null {
     this.dialogVisible = true;
   }
 
-  abrirDialogEditar(producto: any): void {
-    this.editando = true;
-    this.productoForm = { ...producto };
-    this.dialogVisible = true;
-    this.previewUrl = producto?.fotoUrl
-  ? this.productoService.getFotoUrl(producto.fotoUrl)
-  : null;
-this.selectedFile = null;
-  }
+abrirDialogEditar(producto: any): void {
+  this.editando = true;
+  this.productoForm = { ...producto };
+  this.dialogVisible = true;
+  this.previewUrl = producto?.fotoUrl
+    ? this.productoService.getFotoUrl(producto.fotoUrl)
+    : null;
+  this.selectedFile = null;
+}
 
 guardar(): void {
  if (!this.formularioValido()) return; // ✅ doble seguro

@@ -41,14 +41,12 @@ export class ProductoService {
     return this.http.delete(`${this.apiUrl}/${productoId}/foto`);
   }
 
-getFotoUrl(fotoUrl: string | null | undefined, t?: string | number): string {
+getFotoUrl(fotoUrl: string | null | undefined): string {
   if (!fotoUrl) return '';
 
   const baseUrl = 'https://inventario-backend-0lj9.onrender.com';
-  const path = fotoUrl.startsWith('http')
+  return fotoUrl.startsWith('http')
     ? fotoUrl
     : `${baseUrl}${fotoUrl.startsWith('/') ? '' : '/'}${fotoUrl}`;
-
-  return t !== undefined && t !== null ? `${path}?t=${t}` : path;
 }
 }

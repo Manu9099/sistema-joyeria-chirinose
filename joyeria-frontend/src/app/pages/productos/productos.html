@@ -56,11 +56,11 @@
               </div>
             </td>
 <td>
- <img *ngIf="producto.fotoUrl" 
-     [src]="producto.fotoUrl + '?t=' + producto.updatedAt" 
+ <img *ngIf="fotoSrc(producto)"
+     [src]="fotoSrc(producto)"
      style="width:48px;height:48px;object-fit:cover;border-radius:8px;"
      alt="foto" />
-  <span *ngIf="!producto.fotoUrl">—</span>
+     <span *ngIf="!producto.fotoUrl">—</span>
 </td>
 
           </tr>
