@@ -41,49 +41,87 @@ Math = Math;
     this.cargarEstadisticas();
   }
 
-  cargarEstadisticas(): void {
-    this.productoService.listarTodos().subscribe(productos => {
-      this.totalProductos = productos.length;
-      this.productosBajoStock = productos.filter(p => p.stockActual <= 3);
-    });
+cargarEstadisticas(): void {
+  this.productoService.listarTodos().subscribe({
+    next: (productos) => {
+      const listaProductos = Array.isArray(productos) ? productos : [];
+      this.totalProductos = listaProductos.length;
+      this.productosBajoStock = listaProductos.filter(p => (p?.stockActual ?? 0) <= 3);
+    },
+    error: (err) => {
+      console.error('Error cargando productos:', err);
+      this.totalProductos = 0;
+      this.productosBajoStock = [];
+    }
+  });
 
-    this.ventaService.listarTodas().subscribe(ventas => {
-      const activas = ventas.filter(v => v.estado !== 'ANULADO');
+  this.ventaService.listarTodas().subscribe({
+    next: (ventas) => {
+      const listaVentas = Array.isArray(ventas) ? ventas : [];
+      const activas = listaVentas.filter(v => v?.estado !== 'ANULADO');
+
       this.totalVentas = activas.length;
 
       const hoy = new Date().toDateString();
       this.ventasHoy = activas.filter(v =>
-        new Date(v.createdAt).toDateString() === hoy
+        v?.createdAt && new Date(v.createdAt).toDateString() === hoy
       ).length;
 
       const mesActual = new Date().getMonth();
-      const ventasMes = activas.filter(v => new Date(v.createdAt).getMonth() === mesActual);
-      this.ingresosMes = ventasMes.reduce((sum, v) => sum + Number(v.total), 0);
-      this.ingresosTotales = activas.reduce((sum, v) => sum + Number(v.total), 0);
+      const ventasMes = activas.filter(v =>
+        v?.createdAt && new Date(v.createdAt).getMonth() === mesActual
+      );
+
+      this.ingresosMes = ventasMes.reduce((sum, v) => sum + Number(v?.total ?? 0), 0);
+      this.ingresosTotales = activas.reduce((sum, v) => sum + Number(v?.total ?? 0), 0);
 
       this.ultimasVentas = [...activas].reverse().slice(0, 5);
 
-      // Gráfico por mes
-      const datos = this.meses.map((mes, i) => ({
+      const datos = this.meses.map((mes) => ({
         mes,
         total: 0,
         cantidad: 0
       }));
+
       activas.forEach(v => {
-        const mes = new Date(v.createdAt).getMonth();
-        datos[mes].total += Number(v.total);
-        datos[mes].cantidad += 1;
+        if (v?.createdAt) {
+          const mes = new Date(v.createdAt).getMonth();
+          if (mes >= 0 && mes < 12) {
+            datos[mes].total += Number(v?.total ?? 0);
+            datos[mes].cantidad += 1;
+          }
+        }
       });
+
       this.ventasPorMes = datos;
       this.maxVentas = Math.max(...datos.map(d => d.total), 1);
-    });
+    },
+    error: (err) => {
+      console.error('Error cargando ventas:', err);
+      this.totalVentas = 0;
+      this.ventasHoy = 0;
+      this.ingresosMes = 0;
+      this.ingresosTotales = 0;
+      this.ultimasVentas = [];
+      this.ventasPorMes = [];
+      this.maxVentas = 1;
+    }
+  });
 
-    this.clienteService.listarTodos().subscribe(clientes => {
-      this.totalClientes = clientes.length;
-    });
-  }
+  this.clienteService.listarTodos().subscribe({
+    next: (clientes) => {
+      const listaClientes = Array.isArray(clientes) ? clientes : [];
+      this.totalClientes = listaClientes.length;
+    },
+    error: (err) => {
+      console.error('Error cargando clientes:', err);
+      this.totalClientes = 0;
+    }
+  });
+}
 
-  getBarHeight(total: number): number {
-    return (total / this.maxVentas) * 100;
-  }
+getBarHeight(total: number): number {
+  if (!this.maxVentas || this.maxVentas <= 0) return 0;
+  return (total / this.maxVentas) * 100;
+}
 }
